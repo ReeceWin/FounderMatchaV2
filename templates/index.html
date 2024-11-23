@@ -3,22 +3,60 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
+    <!-- Search Bars -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Founder Search - aligns with founder card -->
+        <div class="relative">
+            <input
+                type="text"
+                id="founder-search"
+                placeholder="Search founders by name or industry..."
+                class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+            <div id="founder-search-results" class="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg hidden">
+                <!-- Search results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Empty middle column to align with match statistics card -->
+        <div></div>
+
+        <!-- Developer Search - aligns with developer card -->
+        <div class="relative">
+            <input
+                type="text"
+                id="developer-search"
+                placeholder="Search developers by name or skills..."
+                class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+            <div id="developer-search-results" class="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg hidden">
+                <!-- Search results will be populated here -->
+            </div>
+        </div>
+    </div>
+    <!-- Profile Cards and Match Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Founder Profile (moved to first position) -->
+        <!-- Founder Profile -->
         <div class="bg-white shadow-lg rounded-lg p-6">
             <div class="text-center">
                 <div class="w-32 h-32 mx-auto mb-4 relative">
                     <img
+                        id="founder-image"
                         src="{{ founder.profileImageUrl }}"
                         alt="{{ founder.name }}"
                         class="rounded-full w-full h-full object-cover"
                         onerror="this.src='/static/images/profiles/default-profile.png';"
                     >
                 </div>
-                <h3 class="text-xl font-semibold">{{ founder.name }}</h3>
+                <h3 class="text-xl font-semibold founder-name">{{ founder.name }}</h3>
                 <div class="mt-4 space-y-2">
                     <p class="text-gray-600">Looking for technical co-founder</p>
-                    <div class="flex flex-wrap gap-2 justify-center">
+                    <!-- About Section -->
+                    <div class="text-sm text-gray-600 founder-about">
+                        {{ founder.about }}
+                    </div>
+                    <!-- Industries Section -->
+                    <div class="flex flex-wrap gap-2 justify-center founder-industries">
                         {% for industry in founder.industries %}
                             <span class="px-2 py-1 bg-green-100 text-green-800 rounded">{{ industry }}</span>
                         {% endfor %}
@@ -27,7 +65,7 @@
             </div>
         </div>
 
-        <!-- Match Statistics (stays in middle) -->
+        <!-- Match Statistics -->
         <div class="bg-white shadow-lg rounded-lg p-6">
             <div class="text-center">
                 <h3 class="text-xl font-semibold mb-4">Match Statistics</h3>
@@ -41,20 +79,39 @@
                             <span>Skills Match</span>
                             <span class="font-semibold skills-score">{{ skills_score|default('0') }}%</span>
                         </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                            <div class="bg-green-600 h-2.5 rounded-full skills-progress" style="width: {{ skills_score|default('0') }}%"></div>
+                        </div>
+
                         <div class="flex justify-between items-center">
                             <span>Personality Match</span>
                             <span class="font-semibold personality-score">{{ personality_score|default('0') }}%</span>
                         </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                            <div class="bg-blue-600 h-2.5 rounded-full personality-progress" style="width: {{ personality_score|default('0') }}%"></div>
+                        </div>
+
                         <div class="flex justify-between items-center">
                             <span>Background Match</span>
                             <span class="font-semibold background-score">{{ background_score|default('0') }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                            <div class="bg-purple-600 h-2.5 rounded-full background-progress" style="width: {{ background_score|default('0') }}%"></div>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <span>Cultural Match</span>
+                            <span class="font-semibold cultural-score">{{ cultural_score|default('0') }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                            <div class="bg-yellow-600 h-2.5 rounded-full cultural-progress" style="width: {{ cultural_score|default('0') }}%"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Developer Profile (moved to last position) -->
+        <!-- Developer Profile -->
         <div class="bg-white shadow-lg rounded-lg p-6">
             <div class="text-center">
                 <div class="w-32 h-32 mx-auto mb-4 relative profile-image-container">
