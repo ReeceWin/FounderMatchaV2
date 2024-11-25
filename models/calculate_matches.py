@@ -3,6 +3,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import numpy as np
 from typing import List, Dict, Tuple, Set
+from pathlib import Path
+import json
 
 class EnhancedMatcher:
     def __init__(
@@ -22,8 +24,8 @@ class EnhancedMatcher:
         }
 
         self.core_weights = {
-            'skills': 0.50,
-            'personality': 0.50
+            'skills': 0.40,
+            'personality': 0.60
         }
 
         self.skill_weights = {
@@ -41,6 +43,36 @@ class EnhancedMatcher:
             'interests': 0.50
         }
 
+        # New personality matching weights
+        self.personality_trait_weights = {
+            'core_traits': 0.50,  # Weight for base trait matching
+            'red_flags': 0.35,  # Weight for red flags
+            'positive_signals': 0.15  # Weight for positive signals
+        }
+
+        # Red flag severity weights
+        self.red_flag_weights = {
+            'high_neuroticism': 0.60,  # Multiplier when combined neuroticism > 30
+            'low_conscientiousness': 0.50,  # Multiplier when developer conscientiousness < 5
+            'extraversion_gap': 0.70,  # Multiplier when extraversion difference > 15
+            'low_agreeableness': 0.60  # Multiplier when both have low agreeableness
+        }
+
+        # Positive signal boost weights
+        self.positive_signal_weights = {
+            'conscientiousness_balance': 1.10,  # Multiplier when developer >= founder
+            'high_agreeableness': 1.08,  # Multiplier when combined > 15
+            'high_openness': 1.08,  # Multiplier when max > 15
+            'low_neuroticism': 1.08  # Multiplier when combined < 25
+        }
+
+        # Context boost weights
+        self.context_boost_weights = {
+            'admired_personality_overlap': 1.10,  # Multiplier for shared admired personalities
+            'activity_level_match': 1.05  # Multiplier for matching activity levels
+        }
+
+        # Original personality trait weights (for core trait calculations)
         self.personality_weights = {
             'openness': 0.25,
             'conscientiousness': 0.25,
@@ -49,68 +81,18 @@ class EnhancedMatcher:
             'neuroticism': 0.15
         }
 
-        self.industry_skills_map = {
-            'Fintech': {
-                'primary': {'Full-Stack', 'Back-End', 'Cloud', 'Networks & Distributed Systems', 'Cyber Security'},
-                'secondary': {'DevOps', 'Data Science', 'UI/UX'}
-            },
-            'Blockchain': {
-                'primary': {'Back-End', 'Networks & Distributed Systems', 'Cyber Security'},
-                'secondary': {'Full-Stack', 'Cloud', 'DevOps'}
-            },
-            'AI/ML': {
-                'primary': {'Data Science', 'Artificial Intelligence', 'Back-End'},
-                'secondary': {'Cloud', 'DevOps', 'Full-Stack'}
-            },
-            'E-commerce': {
-                'primary': {'Full-Stack', 'Front-End', 'Back-End', 'UI/UX'},
-                'secondary': {'Cloud', 'DevOps', 'Data Science'}
-            },
-            'HealthTech': {
-                'primary': {'Back-End', 'Data Science', 'Cyber Security'},
-                'secondary': {'Full-Stack', 'UI/UX', 'Cloud'}
-            },
-            'EdTech': {
-                'primary': {'Full-Stack', 'Front-End', 'UI/UX'},
-                'secondary': {'Back-End', 'Data Science', 'Cloud'}
-            },
-            'Gaming': {
-                'primary': {'Game-Development', 'Graphics Programming', 'Desktop Applications'},
-                'secondary': {'Full-Stack', 'UI/UX', 'Back-End'}
-            },
-            'IoT': {
-                'primary': {'Embedded Systems', 'Networks & Distributed Systems', 'Back-End'},
-                'secondary': {'Cloud', 'DevOps', 'Data Science'}
-            },
-            'Cybersecurity': {
-                'primary': {'Cyber Security', 'Networks & Distributed Systems', 'Back-End'},
-                'secondary': {'Cloud', 'DevOps', 'Data Science'}
-            },
-            'Web3': {
-                'primary': {'Back-End', 'Networks & Distributed Systems', 'Cyber Security'},
-                'secondary': {'Full-Stack', 'Cloud', 'DevOps'}
-            },
-            'SaaS': {
-                'primary': {'Full-Stack', 'Cloud', 'DevOps'},
-                'secondary': {'Back-End', 'Front-End', 'UI/UX'}
-            },
-            'AR/VR': {
-                'primary': {'Graphics Programming', 'Game-Development', 'UI/UX'},
-                'secondary': {'Full-Stack', 'Front-End', 'Back-End'}
-            },
-            'Digital Health': {
-                'primary': {'Back-End', 'Data Science', 'Cyber Security'},
-                'secondary': {'Full-Stack', 'UI/UX', 'Cloud'}
-            },
-            'CleanTech': {
-                'primary': {'Data Science', 'Back-End', 'Embedded Systems'},
-                'secondary': {'Full-Stack', 'Cloud', 'DevOps'}
-            },
-            'Smart Cities': {
-                'primary': {'IoT', 'Networks & Distributed Systems', 'Data Science'},
-                'secondary': {'Cloud', 'DevOps', 'Back-End'}
-            }
-        }
+        # Load industry mappings from JSON
+        try:
+            json_path = Path(__file__).parent / 'industries.json'
+            with open(json_path, 'r') as f:
+                industry_data = json.load(f)
+                self.industry_skills_map = industry_data['industries.json']['mappings']
+                self.industry_aliases = industry_data['industries.json']['aliases']
+        except Exception as e:
+            print(f"Error loading industry mappings: {e}")
+            # Fallback to default empty mappings
+            self.industry_skills_map = {}
+            self.industry_aliases = {}
 
         self.default_skills = {
             'primary': {'Full-Stack', 'Back-End', 'Front-End'},
@@ -146,6 +128,16 @@ class EnhancedMatcher:
         return None
 
     def calculate_skill_match(self, founder: Dict, developer: Dict) -> float:
+        """
+        Calculate skill match between founder and developer with stricter criteria.
+        Returns a float between 0 and 1.
+        """
+        # Constants for scoring
+        MIN_PRIMARY_COVERAGE = 0.70  # Must have 70% of primary skills
+        MAX_TECH_BONUS = 0.15  # Cap the bonus for extra skills
+        TECH_BONUS_PER_SKILL = 0.01  # Reduced bonus per additional skill
+        MIN_SCORE = 0.30  # Minimum score if any relevant skills present
+
         working_field = self.extract_working_field(
             founder.get('about', ''),
             founder.get('longDescription', '')
@@ -158,26 +150,43 @@ class EnhancedMatcher:
         if not dev_skills:
             return 0.0
 
+        # Get required skills from industry mappings
         if working_field in self.industry_skills_map:
-            primary_skills = self.industry_skills_map[working_field]['primary']
-            secondary_skills = self.industry_skills_map[working_field]['secondary']
+            primary_skills = set(self.industry_skills_map[working_field]['primary'])
+            secondary_skills = set(self.industry_skills_map[working_field]['secondary'])
         else:
-            primary_skills = self.default_skills['primary']
-            secondary_skills = self.default_skills['secondary']
+            primary_skills = set(self.default_skills['primary'])
+            secondary_skills = set(self.default_skills['secondary'])
 
-        primary_coverage = len(primary_skills.intersection(dev_skills)) / len(primary_skills) if primary_skills else 0
-        secondary_coverage = len(secondary_skills.intersection(dev_skills)) / len(
-            secondary_skills) if secondary_skills else 0
+        # Calculate coverage percentages
+        primary_matches = primary_skills.intersection(dev_skills)
+        secondary_matches = secondary_skills.intersection(dev_skills)
 
-        weighted_score = (
-                self.skill_weights['primary'] * primary_coverage +
-                self.skill_weights['secondary'] * secondary_coverage
+        primary_coverage = len(primary_matches) / len(primary_skills) if primary_skills else 0
+        secondary_coverage = len(secondary_matches) / len(secondary_skills) if secondary_skills else 0
+
+        # Calculate base score with weighted coverage
+        base_score = (
+                primary_coverage * self.skill_weights['primary'] +
+                secondary_coverage * self.skill_weights['secondary']
         )
 
-        tech_skills = dev_skills - (primary_skills.union(secondary_skills))
-        tech_bonus = len(tech_skills) * 0.05
+        # Apply minimum threshold penalty for primary skills
+        if primary_coverage < MIN_PRIMARY_COVERAGE:
+            base_score *= 0.5
 
-        return min(1.0, weighted_score + tech_bonus)
+        # Calculate tech bonus with diminishing returns
+        tech_skills = dev_skills - (primary_skills.union(secondary_skills))
+        tech_bonus = min(len(tech_skills) * TECH_BONUS_PER_SKILL, MAX_TECH_BONUS)
+
+        # Calculate final score
+        final_score = base_score + tech_bonus
+
+        # Apply minimum score if there's any relevant skill match
+        if primary_matches or secondary_matches:
+            final_score = max(MIN_SCORE, final_score)
+
+        return min(0.95, final_score)  # Cap at 95% to make perfect scores rare
 
     def calculate_personality_match(self, founder: Dict, developer: Dict) -> float:
         founder_personality = founder.get('personalityResults', {})
@@ -188,39 +197,70 @@ class EnhancedMatcher:
 
         scores = {}
 
+        # Openness: Range -2 to 25, Mean ~12.7
         f_openness = founder_personality.get('openness', 0)
         d_openness = developer_personality.get('openness', 0)
-        diff_openness = abs(f_openness - d_openness)
-        scores['openness'] = max(0, 1 - (diff_openness / 20))
+        # Reward above average scores (>12)
+        scores['openness'] = min(1.0, ((f_openness + d_openness) / 50))
 
+        # Conscientiousness: Range -2 to 25, Mean ~12.6
         f_conscientiousness = founder_personality.get('conscientiousness', 0)
         d_conscientiousness = developer_personality.get('conscientiousness', 0)
-        diff_conscientiousness = abs(f_conscientiousness - d_conscientiousness)
-        scores['conscientiousness'] = max(0, 1 - (diff_conscientiousness / 20))
+        # Want developer above average (>12)
+        scores['conscientiousness'] = min(1.0, (d_conscientiousness + 2) / 27)
+        if d_conscientiousness < 10:  # Below average is concerning
+            scores['conscientiousness'] *= 0.7
 
+        # Extraversion: Range -3 to 25, Mean ~11.8
         f_extraversion = founder_personality.get('extraversion', 0)
         d_extraversion = developer_personality.get('extraversion', 0)
-        extraversion_sum = f_extraversion + d_extraversion
-        scores['extraversion'] = max(0, 1 - abs(35 - extraversion_sum) / 35)
+        # Prefer complementary scores but not extreme gaps
+        gap = abs(f_extraversion - d_extraversion)
+        scores['extraversion'] = min(1.0, 1 - (gap / 28))
 
+        # Agreeableness: Range -2 to 25, Mean ~12.2
         f_agreeableness = founder_personality.get('agreeableness', 0)
         d_agreeableness = developer_personality.get('agreeableness', 0)
-        diff_agreeableness = abs(f_agreeableness - d_agreeableness)
-        scores['agreeableness'] = max(0, 1 - (diff_agreeableness / 20))
+        # Want at least one above average (>12)
+        scores['agreeableness'] = min(1.0, max(f_agreeableness, d_agreeableness) / 25)
 
+        # Neuroticism: Range 5 to 83, Mean ~22.8
         f_neuroticism = founder_personality.get('neuroticism', 0)
         d_neuroticism = developer_personality.get('neuroticism', 0)
-        combined_neuroticism = (f_neuroticism + d_neuroticism) / 2
-        scores['neuroticism'] = max(0, 1 - (combined_neuroticism / 30))
+        # Prefer lower scores, heavily penalize high scores
+        if d_neuroticism > 40:  # Well above mean
+            scores['neuroticism'] = 0.3
+        elif d_neuroticism > 30:  # Above mean
+            scores['neuroticism'] = 0.5
+        else:
+            scores['neuroticism'] = min(1.0, 1 - (d_neuroticism / 50))
 
-        for trait in ['openness', 'conscientiousness', 'agreeableness']:
-            if abs(founder_personality.get(trait, 0) - developer_personality.get(trait, 0)) > 30:
-                scores[trait] *= 0.5
+        # Adjusted weights based on importance
+        weights = {
+            'openness': 0.20,
+            'conscientiousness': 0.25,
+            'extraversion': 0.15,
+            'agreeableness': 0.20,
+            'neuroticism': 0.20
+        }
 
-        final_score = sum(scores[trait] * self.personality_weights[trait] for trait in scores)
-        scaled_score = pow(final_score, 1.5)
+        base_score = sum(scores[trait] * weights[trait] for trait in scores)
 
-        return min(1.0, scaled_score)
+        # Red flags based on statistical distribution
+        red_flags = 1.0
+
+        if d_neuroticism > 50:  # Very high neuroticism (>2 SD above mean)
+            red_flags *= 0.6
+        if d_conscientiousness < 5:  # Very low conscientiousness (>1 SD below mean)
+            red_flags *= 0.7
+        if f_agreeableness < 0 and d_agreeableness < 0:  # Both negative agreeableness
+            red_flags *= 0.8
+        if f_openness < 5 and d_openness < 5:  # Both low openness
+            red_flags *= 0.8
+
+        final_score = base_score * red_flags
+
+        return min(0.90, final_score)  # Cap at 90% to make perfect matches rare
 
     def calculate_background_match(self, founder: Dict, developer: Dict) -> float:
         founder_degrees = set(' '.join(founder.get('degrees', [])).lower().split())
