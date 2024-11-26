@@ -1,7 +1,6 @@
 # calculate_matches.py
 import firebase_admin
 from firebase_admin import credentials, firestore
-import numpy as np
 from typing import List, Dict, Tuple, Set
 from pathlib import Path
 import json
@@ -18,29 +17,29 @@ class EnhancedMatcher:
         self.db = firestore.client()
 
         self.component_weights = {
-            'core_match': 0.90,
-            'background_match': 0.05,
-            'cultural_match': 0.05,
+            'core_match': 0.90, # Skills and personality
+            'background_match': 0.05, # Education and industry
+            'cultural_match': 0.05, # Values and interests
         }
 
         self.core_weights = {
-            'skills': 0.40,
-            'personality': 0.60
+            'skills': 0.40, # Skill weighting
+            'personality': 0.60 # Personality weighting
         }
 
         self.skill_weights = {
-            'primary': 0.75,
-            'secondary': 0.25
+            'primary': 0.75, # Each industry has a set of primary skills
+            'secondary': 0.25 # And secondary skills
         }
 
         self.background_weights = {
-            'education': 0.50,
-            'industry': 0.50
+            'education': 0.50, # Education weighting
+            'industry': 0.50 # Indsutry weighting
         }
 
         self.cultural_weights = {
-            'values': 0.50,
-            'interests': 0.50
+            'values': 0.50, # If any of the admiring personalities overlap
+            'interests': 0.50 # If any hobbies overlap
         }
 
         # New personality matching weights
