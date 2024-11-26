@@ -1,0 +1,131 @@
+{
+  "industries.json": {
+    "mappings": {
+      "AI/ML": {
+        "primary": ["Artificial Intelligence", "Data Science"],
+        "secondary": ["Cloud", "Back-End", "DevOps"]
+      },
+      "AR/VR": {
+        "primary": ["Graphics Programming", "Front-End"],
+        "secondary": ["UI/UX", "Full-Stack"]
+      },
+      "Advanced Manufacturing": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Cloud", "Networks & Distributed Systems"]
+      },
+      "AgTech": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "BioTech": {
+        "primary": ["Data Science"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "Blockchain": {
+        "primary": ["Back-End", "Networks & Distributed Systems"],
+        "secondary": ["Cyber Security", "Full-Stack"]
+      },
+      "CleanTech": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "Cybersecurity": {
+        "primary": ["Cyber Security", "Networks & Distributed Systems"],
+        "secondary": ["Cloud", "DevOps"]
+      },
+      "DeFi": {
+        "primary": ["Back-End", "Networks & Distributed Systems"],
+        "secondary": ["Front-End", "UI/UX"]
+      },
+      "Digital Health": {
+        "primary": ["Back-End", "Data Science", "Cyber Security"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "E-commerce": {
+        "primary": ["Full-Stack", "Front-End", "Back-End"],
+        "secondary": ["UI/UX", "Cloud"]
+      },
+      "EdTech": {
+        "primary": ["Full-Stack", "Front-End", "UI/UX"],
+        "secondary": ["Back-End", "Cloud"]
+      },
+      "Fintech": {
+        "primary": ["Back-End", "Cyber Security"],
+        "secondary": ["Cloud", "Front-End", "UI/UX"]
+      },
+      "FoodTech": {
+        "primary": ["Embedded Systems", "Back-End"],
+        "secondary": ["Cloud", "Front-End", "UI/UX"]
+      },
+      "Gaming": {
+        "primary": ["Game-Development", "Graphics Programming"],
+        "secondary": ["Front-End", "UI/UX"]
+      },
+      "GreenTech": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "HealthTech": {
+        "primary": ["Back-End", "Cyber Security", "Data Science"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "Healthcare": {
+        "primary": ["Back-End", "Cyber Security", "Data Science"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "InsurTech": {
+        "primary": ["Back-End", "Data Science", "Cyber Security"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "IoT": {
+        "primary": ["Embedded Systems", "Networks & Distributed Systems"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "LegalTech": {
+        "primary": ["Back-End", "Data Science"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "PropTech": {
+        "primary": ["Full-Stack", "Back-End", "Front-End"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "Quantum Computing": {
+        "primary": ["Data Science"],
+        "secondary": ["Back-End", "Cloud"]
+      },
+      "RetailTech": {
+        "primary": ["Full-Stack", "Front-End", "Back-End"],
+        "secondary": ["Cloud", "UI/UX"]
+      },
+      "Robotics": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Back-End", "Networks & Distributed Systems"]
+      },
+      "SaaS": {
+        "primary": ["Full-Stack", "Cloud", "Back-End"],
+        "secondary": ["Front-End", "DevOps", "UI/UX"]
+      },
+      "Smart Cities": {
+        "primary": ["Embedded Systems", "Data Science", "Networks & Distributed Systems"],
+        "secondary": ["Cloud", "Back-End"]
+      },
+      "Social Media": {
+        "primary": ["Full-Stack", "Front-End", "Back-End"],
+        "secondary": ["Cloud", "UI/UX", "Networks & Distributed Systems"]
+      },
+      "SpaceTech": {
+        "primary": ["Embedded Systems", "Data Science"],
+        "secondary": ["Cloud", "Back-End", "Networks & Distributed Systems"]
+      },
+      "Web3": {
+        "primary": ["Back-End", "Networks & Distributed Systems"],
+        "secondary": ["Front-End", "UI/UX"]
+      }
+    },
+    "aliases": {
+      "GreenTech": "CleanTech",
+      "Green Tech": "CleanTech",
+      "Green Technology": "CleanTech"
+    }
+  }
+}

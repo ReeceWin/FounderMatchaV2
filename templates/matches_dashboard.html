@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Matches Dashboard</h1>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-2">Total Matches</h2>
+            <p class="text-3xl font-bold text-blue-600" id="total-matches">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-2">Successful</h2>
+            <p class="text-3xl font-bold text-green-600" id="successful-matches">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-2">Pending</h2>
+            <p class="text-3xl font-bold text-yellow-600" id="pending-matches">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-2">Failed</h2>
+            <p class="text-3xl font-bold text-red-600" id="failed-matches">0</p>
+        </div>
+    </div>
+
+    <!-- Matches table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Recent Matches</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="w-10"></th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Founder</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Developer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Match Score</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="matches-table-body">
+                    <!-- Matches will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Load scripts at the end -->
+<script src="{{ url_for('static', filename='js/matches_dashboard.js') }}"></script>
+{% endblock %}

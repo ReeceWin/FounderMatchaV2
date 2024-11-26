@@ -1,0 +1,205 @@
+{
+  "overall": {
+    "openness": {
+      "min": -2,
+      "max": 25,
+      "mean": 12.74,
+      "median": 13.0,
+      "stdev": 5.74653167246351,
+      "count": 100,
+      "quartiles": {
+        "q1": 8.0,
+        "q2": 13.0,
+        "q3": 18.0
+      }
+    },
+    "conscientiousness": {
+      "min": -2,
+      "max": 25,
+      "mean": 12.58,
+      "median": 11.5,
+      "stdev": 7.0197125038254695,
+      "count": 100,
+      "quartiles": {
+        "q1": 7.0,
+        "q2": 11.5,
+        "q3": 18.75
+      }
+    },
+    "extraversion": {
+      "min": -3,
+      "max": 25,
+      "mean": 11.82,
+      "median": 11.5,
+      "stdev": 7.247960353984374,
+      "count": 100,
+      "quartiles": {
+        "q1": 6.0,
+        "q2": 11.5,
+        "q3": 18.0
+      }
+    },
+    "agreeableness": {
+      "min": -2,
+      "max": 25,
+      "mean": 12.2,
+      "median": 11.0,
+      "stdev": 6.490085679034763,
+      "count": 100,
+      "quartiles": {
+        "q1": 7.25,
+        "q2": 11.0,
+        "q3": 17.0
+      }
+    },
+    "neuroticism": {
+      "min": 5,
+      "max": 83,
+      "mean": 22.76,
+      "median": 15.0,
+      "stdev": 21.136458998372905,
+      "count": 100,
+      "quartiles": {
+        "q1": 5.0,
+        "q2": 15.0,
+        "q3": 37.0
+      }
+    }
+  },
+  "by_role": {
+    "founder": {
+      "openness": {
+        "min": -2,
+        "max": 25,
+        "mean": 12.678571428571429,
+        "median": 13.0,
+        "stdev": 5.62496753237383,
+        "count": 56,
+        "quartiles": {
+          "q1": 8.25,
+          "q2": 13.0,
+          "q3": 17.75
+        }
+      },
+      "conscientiousness": {
+        "min": 1,
+        "max": 25,
+        "mean": 12.982142857142858,
+        "median": 11.5,
+        "stdev": 7.386698294117047,
+        "count": 56,
+        "quartiles": {
+          "q1": 7.0,
+          "q2": 11.5,
+          "q3": 20.75
+        }
+      },
+      "extraversion": {
+        "min": -3,
+        "max": 25,
+        "mean": 11.642857142857142,
+        "median": 11.5,
+        "stdev": 7.110628591133063,
+        "count": 56,
+        "quartiles": {
+          "q1": 6.0,
+          "q2": 11.5,
+          "q3": 17.5
+        }
+      },
+      "agreeableness": {
+        "min": 0,
+        "max": 25,
+        "mean": 12.428571428571429,
+        "median": 11.5,
+        "stdev": 6.438117011157117,
+        "count": 56,
+        "quartiles": {
+          "q1": 7.0,
+          "q2": 11.5,
+          "q3": 17.0
+        }
+      },
+      "neuroticism": {
+        "min": 5,
+        "max": 83,
+        "mean": 23.357142857142858,
+        "median": 14.0,
+        "stdev": 22.650248701366753,
+        "count": 56,
+        "quartiles": {
+          "q1": 5.0,
+          "q2": 14.0,
+          "q3": 35.5
+        }
+      }
+    },
+    "developer": {
+      "openness": {
+        "min": -1,
+        "max": 24,
+        "mean": 12.818181818181818,
+        "median": 13.0,
+        "stdev": 5.962178185056147,
+        "count": 44,
+        "quartiles": {
+          "q1": 8.0,
+          "q2": 13.0,
+          "q3": 18.0
+        }
+      },
+      "conscientiousness": {
+        "min": -2,
+        "max": 25,
+        "mean": 12.068181818181818,
+        "median": 11.5,
+        "stdev": 6.571247190647447,
+        "count": 44,
+        "quartiles": {
+          "q1": 8.25,
+          "q2": 11.5,
+          "q3": 15.75
+        }
+      },
+      "extraversion": {
+        "min": -1,
+        "max": 25,
+        "mean": 12.045454545454545,
+        "median": 11.5,
+        "stdev": 7.495594195707438,
+        "count": 44,
+        "quartiles": {
+          "q1": 5.25,
+          "q2": 11.5,
+          "q3": 18.0
+        }
+      },
+      "agreeableness": {
+        "min": -2,
+        "max": 25,
+        "mean": 11.909090909090908,
+        "median": 11.0,
+        "stdev": 6.618572114040357,
+        "count": 44,
+        "quartiles": {
+          "q1": 8.0,
+          "q2": 11.0,
+          "q3": 18.25
+        }
+      },
+      "neuroticism": {
+        "min": 5,
+        "max": 71,
+        "mean": 22,
+        "median": 16.5,
+        "stdev": 19.269206667151487,
+        "count": 44,
+        "quartiles": {
+          "q1": 5.0,
+          "q2": 16.5,
+          "q3": 40.0
+        }
+      }
+    }
+  }
+}

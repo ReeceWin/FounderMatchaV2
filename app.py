@@ -1,15 +1,15 @@
 # app.py
-import math
-from flask import Flask, render_template, jsonify, request, url_for
-import firebase_admin
-from firebase_admin import credentials, firestore
-from models.calculate_matches import EnhancedMatcher
 import logging
 import os
-from functools import wraps
 import time
-import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
+from functools import wraps
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+from flask import Flask, render_template, jsonify, request
+
+from models.calculate_matches import EnhancedMatcher
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -500,6 +500,57 @@ def previous_profile():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/matches/check', methods=['GET'])
+@retry_on_firebase_error
+def check_existing_match():
+    try:
+        founder_id = request.args.get('founder_id')
+        developer_id = request.args.get('developer_id')
+
+        if not founder_id or not developer_id:
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        # Query for existing match
+        matches = db.collection('matches').where('founder_id', '==', founder_id).where('developer_id', '==',
+                                                                                       developer_id).limit(1).get()
+
+        exists = len(list(matches)) > 0
+
+        return jsonify({'exists': exists})
+
+    except Exception as e:
+        logger.error(f"Error checking existing match: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# Add to app.py
+
+@app.route('/api/matches/<match_id>', methods=['DELETE'])
+@retry_on_firebase_error
+def delete_match(match_id):
+    try:
+        # Get match reference
+        match_ref = db.collection('matches').document(match_id)
+        match = match_ref.get()
+
+        if not match.exists:
+            return jsonify({'error': 'Match not found'}), 404
+
+        # Delete the match
+        match_ref.delete()
+
+        return jsonify({
+            'success': True,
+            'message': 'Match deleted successfully'
+        })
+
+    except Exception as e:
+        logger.error(f"Error deleting match: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/profiles/all', methods=['GET'])
 @retry_on_firebase_error
 def get_all_sorted_profiles():
@@ -632,334 +683,248 @@ def search_founders():
 
 '''MATCHES DATABASE SECTION'''
 
-# Add these routes to your app.py
 
-from models.matches_collector import MatchCollector
-
-# Initialize the match collector
-match_collector = MatchCollector(db)
-
-@app.route('/api/matches/create', methods=['POST'])
-@retry_on_firebase_error
-def create_match():
-    try:
-        data = request.json
-        founder_id = data.get('founder_id')
-        developer_id = data.get('developer_id')
-        match_scores = data.get('match_scores')
-        initiated_by = data.get('initiated_by')
-
-        # Get full profiles
-        founder = get_founder_profile(founder_id)
-        developer = get_developer_profile(developer_id)
-
-        if not founder or not developer:
-            return jsonify({'error': 'Could not fetch user profiles'}), 404
-
-        # Create match record
-        result = match_collector.create_match(
-            founder,
-            developer,
-            match_scores,
-            initiated_by
-        )
-
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify({'error': result['error']}), 500
-
-    except Exception as e:
-        logger.error(f"Error creating match: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/matches/<match_id>/status', methods=['PUT'])
-@retry_on_firebase_error
-def update_match_status():
-    try:
-        data = request.json
-        match_id = data.get('match_id')
-        new_status = data.get('status')
-
-        result = match_collector.update_match_status(match_id, new_status)
-
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify({'error': result['error']}), 400
-
-    except Exception as e:
-        logger.error(f"Error updating match status: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/matches/history/<user_id>')
-@retry_on_firebase_error
-def get_user_matches(user_id):
-    try:
-        role = request.args.get('role', 'any')
-        result = match_collector.get_match_history(user_id, role)
-
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify({'error': result['error']}), 400
-
-    except Exception as e:
-        logger.error(f"Error fetching match history: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/matches/dashboard/')
+@app.route('/matches_dashboard')
 def matches_dashboard():
-    """
-    Render the matches dashboard page
-    """
-    return render_template('matches/dashboard.html')
+    return render_template('matches_dashboard.html')
+
+
+@app.route('/api/matches', methods=['GET'])
+@retry_on_firebase_error
+def get_matches():
+    try:
+        matches_ref = db.collection('matches').order_by('created_at', direction=firestore.Query.DESCENDING).limit(50)
+        matches = list(matches_ref.stream())
+
+        # Convert to list of dictionaries
+        matches_data = []
+        stats = {'total': 0, 'successful': 0, 'pending': 0, 'failed': 0}
+
+        for match in matches:
+            match_dict = match.to_dict()
+            match_dict['id'] = match.id
+            matches_data.append(match_dict)
+
+            # Update stats
+            stats['total'] += 1
+            stats[match_dict['status']] += 1
+
+        return jsonify({
+            'matches': matches_data,
+            'stats': stats
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching matches: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/matches/store', methods=['POST'])
 @retry_on_firebase_error
 def store_match():
-    """Store a new match in Firebase"""
     try:
-        print("=== Starting store_match function ===")
         data = request.json
-        print(f"Received data: {data}")
+        match_ref = db.collection('matches').document()
 
-        # Generate match ID and timestamp
-        match_id = str(uuid.uuid4())
-        timestamp = firestore.SERVER_TIMESTAMP  # Use Firestore server timestamp
-        print(f"Generated match_id: {match_id}")
-
-        # Get profiles
+        # Get full profiles for snapshot
         founder = get_founder_profile(data['founder_id'])
         developer = get_developer_profile(data['developer_id'])
 
-        if not founder or not developer:
-            print("Failed to retrieve profiles")
-            return jsonify({
-                'success': False,
-                'error': 'Could not fetch user profiles'
-            }), 404
-
-        # Construct match data
         match_data = {
-            'match_id': match_id,
-            'timestamp': timestamp,  # This will be converted to Firestore timestamp
-            'founder_id': str(data['founder_id']),
-            'developer_id': str(data['developer_id']),
-            'match_initiated_by': data.get('initiated_by'),
+            'founder_id': data['founder_id'],
+            'developer_id': data['developer_id'],
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow().isoformat(),
+            'status': 'pending',
+            'status_history': [{
+                'status': 'pending',
+                'timestamp': datetime.utcnow().isoformat(),
+                'updated_by': data['founder_id']
+            }],
 
-            'scores': {
-                'total_score': float(data['match_scores'].get('total_score', 0)),
+            'match_scores': {
+                'total_score': data['match_scores']['total_score'],
                 'components': {
-                    'skill_score': float(data['match_scores']['components'].get('skill_score', 0)),
-                    'personality_score': float(data['match_scores']['components'].get('personality_score', 0)),
-                    'background_score': float(data['match_scores']['components'].get('background_score', 0)),
-                    'cultural_score': float(data['match_scores']['components'].get('cultural_score', 0))
+                    'skill_score': data['match_scores']['components']['skill_score'],
+                    'personality_score': data['match_scores']['components']['personality_score'],
+                    'background_score': data['match_scores']['components']['background_score'],
+                    'cultural_score': data['match_scores']['components']['cultural_score']
                 }
             },
 
-            'founder_snapshot': {
-                'name': founder.get('name'),
-                'industries': founder.get('industries', []),
-                'personality_results': founder.get('personalityResults', {}),
-                'work_styles': founder.get('workStyles', []),
-                'about': founder.get('about', '')
+            'ml_features': {
+                'location_match': get_location_match(data['founder_id'], data['developer_id']),
+                'industry_overlap': get_industry_overlap(data['founder_id'], data['developer_id']),
+                'skill_coverage': calculate_skill_coverage(founder, developer),
+                'personality_compatibility': calculate_personality_compatibility(founder, developer),
+                'experience_level_match': calculate_experience_match(founder, developer),
+                'prior_matches': {
+                    'founder': get_user_match_count(data['founder_id']),
+                    'developer': get_user_match_count(data['developer_id']),
+                    'success_rate_founder': get_success_rate(data['founder_id']),
+                    'success_rate_developer': get_success_rate(data['developer_id'])
+                }
             },
 
-            'developer_snapshot': {
-                'name': developer.get('name'),
-                'skills': developer.get('skills', []),
-                'personality_results': developer.get('personalityResults', {}),
-                'work_styles': developer.get('workStyles', []),
-                'industries': developer.get('industries', [])
-            },
-
-            'status': {
-                'current': 'pending',
-                'history': [{
-                    'status': 'pending',
-                    'timestamp': timestamp,  # This will also be a Firestore timestamp
-                    'updated_by': data.get('initiated_by')
-                }]
+            # Profile snapshots
+            'profile_snapshots': {
+                'founder': {
+                    'name': founder.get('name'),
+                    'skills': founder.get('skills'),
+                    'industries': founder.get('industries', []),
+                    'about': founder.get('about', ''),
+                    'personality_results': founder.get('personalityResults', {}),
+                    'degrees': founder.get('degrees', []),
+                    'companies': founder.get('companies', []),
+                    'city': founder.get('city', ''),
+                    'work_styles': founder.get('workStyles', [])
+                },
+                'developer': {
+                    'name': developer.get('name'),
+                    'skills': developer.get('skills', []),
+                    'industries': developer.get('industries', []),
+                    'personality_results': developer.get('personalityResults', {}),
+                    'degrees': developer.get('degrees', []),
+                    'companies': developer.get('companies', []),
+                    'city': developer.get('city', ''),
+                    'work_styles': developer.get('workStyles', []),
+                }
             }
         }
 
-        # Store in Firestore
-        print("Attempting to store in Firestore...")
-        matches_ref = db.collection('matches')
-        matches_ref.document(match_id).set(match_data)
-        print("Successfully stored in Firestore")
+        match_ref.set(match_data)
+        return jsonify({'success': True, 'match_id': match_ref.id})
 
-        return jsonify({
-            'success': True,
-            'match_id': match_id,
-            'message': 'Match created successfully'
+    except Exception as e:
+        logger.error(f"Error storing match: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/matches/<match_id>/status', methods=['PUT'])
+@retry_on_firebase_error
+def update_match_status(match_id):
+    try:
+        data = request.json
+        new_status = data['status']
+        updater_id = data.get('updater_id')
+
+        match_ref = db.collection('matches').document(match_id)
+        match = match_ref.get()
+
+        if not match.exists:
+            return jsonify({'error': 'Match not found'}), 404
+
+        match_data = match.to_dict()
+
+        # Add new status to history
+        status_update = {
+            'status': new_status,
+            'timestamp': datetime.utcnow().isoformat(),
+            'updated_by': updater_id
+        }
+
+        match_ref.update({
+            'status': new_status,
+            'updated_at': datetime.utcnow().isoformat(),
+            'status_history': firestore.ArrayUnion([status_update])
         })
 
+        return jsonify({'success': True})
+
     except Exception as e:
-        print(f"Error in store_match: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        logger.error(f"Error updating match status: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
-# Add to app.py
+def calculate_skill_coverage(founder, developer):
+    founder_industries = set(founder.get('industries', []))
+    developer_skills = set(developer.get('skills', []))
+    # Add logic to map industry requirements to skills
+    return len(developer_skills) / max(len(founder_industries), 1)
 
-@app.route('/matches/dashboard')
-def matches_dashboard():
-    """Render the matches dashboard page"""
+
+def calculate_personality_compatibility(founder, developer):
+    f_personality = founder.get('personalityResults', {})
+    d_personality = developer.get('personalityResults', {})
+
+    if not f_personality or not d_personality:
+        return 0
+
+    traits = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism']
+    differences = []
+
+    for trait in traits:
+        f_score = f_personality.get(trait, 0)
+        d_score = d_personality.get(trait, 0)
+        differences.append(abs(f_score - d_score))
+
+    return 1 - (sum(differences) / (len(traits) * 100)) if differences else 0
+
+
+def calculate_experience_match(founder, developer):
+    f_companies = len(founder.get('companies', []))
+    d_companies = len(developer.get('companies', []))
+    return 1 - abs(f_companies - d_companies) / max(f_companies + d_companies, 1)
+
+
+def get_success_rate(user_id):
+    matches = db.collection('matches').where('founder_id', '==', user_id).get()
+    successful = 0
+    total = 0
+
+    for match in matches:
+        total += 1
+        if match.get('status') == 'successful':
+            successful += 1
+
+    return successful / total if total > 0 else 0
+
+
+# Location matching
+def get_location_match(founder_id, developer_id):
+    """Returns 1 if locations match, 0 otherwise"""
     try:
-        # Get initial statistics
-        matches_ref = db.collection('matches')
-        matches = list(matches_ref.order_by('timestamp', direction=firestore.Query.DESCENDING).stream())
-
-        total_matches = len(matches)
-        avg_score = sum(match.get('scores', {}).get('total_score', 0) for match in
-                        [m.to_dict() for m in matches]) / total_matches if total_matches > 0 else 0
-
-        return render_template(
-            'matches/dashboard.html',
-            total_matches=total_matches,
-            avg_score=round(avg_score, 1)
-        )
+        founder = get_founder_profile(founder_id)
+        developer = get_developer_profile(developer_id)
+        return 1 if founder.get('city') == developer.get('city') else 0
     except Exception as e:
-        logger.error(f"Error loading dashboard: {e}")
-        return render_template('matches/dashboard.html')
+        logger.error(f"Error in location matching: {e}")
+        return 0
 
 
-@app.route('/api/matches/stats')
-def get_match_stats():
-    """Get match statistics for the dashboard"""
+# Industry overlap calculation
+def get_industry_overlap(founder_id, developer_id):
+    """Calculate percentage of overlapping industries"""
     try:
-        matches_ref = db.collection('matches')
-        matches = [match.to_dict() for match in matches_ref.stream()]
+        founder = get_founder_profile(founder_id)
+        developer = get_developer_profile(developer_id)
 
-        # Calculate statistics
-        total_matches = len(matches)
-        if total_matches == 0:
-            return jsonify({
-                'success': True,
-                'stats': {
-                    'total_matches': 0,
-                    'avg_score': 0,
-                    'active_matches': 0,
-                    'success_rate': 0,
-                    'score_distribution': [0, 0, 0, 0, 0],
-                    'recent_matches': []
-                }
-            })
+        founder_industries = set(founder.get('industries', []))
+        developer_industries = set(developer.get('industries', []))
 
-        # Basic stats
-        avg_score = sum(match.get('scores', {}).get('total_score', 0) for match in matches) / total_matches
-        active_matches = sum(1 for match in matches if match.get('status', {}).get('current') == 'active')
+        if not founder_industries or not developer_industries:
+            return 0
 
-        # Score distribution
-        score_ranges = [0] * 5  # 0-20, 21-40, 41-60, 61-80, 81-100
-        for match in matches:
-            score = match.get('scores', {}).get('total_score', 0)
-            index = min(int(score // 20), 4)
-            score_ranges[index] += 1
+        overlap = founder_industries.intersection(developer_industries)
+        total = founder_industries.union(developer_industries)
 
-        # Get recent matches
-        recent_matches = sorted(
-            matches,
-            key=lambda x: x.get('timestamp', 0),
-            reverse=True
-        )[:5]
-
-        recent_matches_data = [{
-            'id': match.get('match_id'),
-            'founder_name': match.get('founder_snapshot', {}).get('name', 'Unknown'),
-            'developer_name': match.get('developer_snapshot', {}).get('name', 'Unknown'),
-            'score': match.get('scores', {}).get('total_score', 0),
-            'status': match.get('status', {}).get('current', 'pending'),
-            'timestamp': match.get('timestamp')
-        } for match in recent_matches]
-
-        return jsonify({
-            'success': True,
-            'stats': {
-                'total_matches': total_matches,
-                'avg_score': round(avg_score, 1),
-                'active_matches': active_matches,
-                'success_rate': round((active_matches / total_matches) * 100, 1),
-                'score_distribution': score_ranges,
-                'recent_matches': recent_matches_data
-            }
-        })
-
+        return len(overlap) / len(total)
     except Exception as e:
-        logger.error(f"Error getting match stats: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        logger.error(f"Error in industry overlap: {e}")
+        return 0
 
 
-@app.route('/api/matches/list')
-def get_matches_list():
-    """Get paginated list of matches"""
+# Match history tracking
+def get_user_match_count(user_id):
+    """Get total number of matches for a user"""
     try:
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        status_filter = request.args.get('status')
-        score_filter = request.args.get('min_score')
-        date_filter = request.args.get('date_range')  # in days
-
-        matches_ref = db.collection('matches')
-        query = matches_ref.order_by('timestamp', direction=firestore.Query.DESCENDING)
-
-        # Apply filters
-        if status_filter and status_filter != 'all':
-            query = query.where('status.current', '==', status_filter)
-
-        if score_filter and score_filter != 'all':
-            query = query.where('scores.total_score', '>=', float(score_filter))
-
-        if date_filter and date_filter != 'all':
-            cutoff = datetime.now() - timedelta(days=int(date_filter))
-            query = query.where('timestamp', '>=', cutoff)
-
-        # Get total count for pagination
-        total_matches = len(list(query.stream()))
-        total_pages = math.ceil(total_matches / per_page)
-
-        # Get paginated results
-        matches = query.limit(per_page).offset((page - 1) * per_page).stream()
-
-        matches_data = []
-        for match in matches:
-            match_dict = match.to_dict()
-            matches_data.append({
-                'id': match_dict.get('match_id'),
-                'timestamp': match_dict.get('timestamp'),
-                'founder_name': match_dict.get('founder_snapshot', {}).get('name'),
-                'developer_name': match_dict.get('developer_snapshot', {}).get('name'),
-                'total_score': match_dict.get('scores', {}).get('total_score'),
-                'status': match_dict.get('status', {}).get('current'),
-                'components': match_dict.get('scores', {}).get('components', {})
-            })
-
-        return jsonify({
-            'success': True,
-            'matches': matches_data,
-            'pagination': {
-                'current_page': page,
-                'total_pages': total_pages,
-                'total_matches': total_matches,
-                'per_page': per_page
-            }
-        })
-
+        matches = db.collection('matches').where('founder_id', '==', user_id).get()
+        dev_matches = db.collection('matches').where('developer_id', '==', user_id).get()
+        return len(list(matches)) + len(list(dev_matches))
     except Exception as e:
-        logger.error(f"Error getting matches list: {e}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        logger.error(f"Error getting match count: {e}")
+        return 0
 
-
+# Add to bottom of app.py
 if __name__ == '__main__':
     app.run(debug=True)

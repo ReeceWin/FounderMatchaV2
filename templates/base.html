@@ -10,31 +10,30 @@
 </head>
 <body class="bg-gray-100">
     <!-- Navigation -->
-    <nav class="bg-gray-800 text-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center">
-                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-8 w-8">
-                        <span class="ml-2 text-xl font-bold">foundermatcha</span>
-                    </a>
-                </div>
-                <div class="hidden md:block">
-                    <div class="flex items-center space-x-4">
-                        <a href="/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Home</a>
-                        <a href="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">About us</a>
-                        <a href="/personality-test" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Personality test</a>
-                        <a href="/investors" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Investors</a>
-                        <a href="/blog" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Blog</a>
-                        <a href="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Contact</a>
-                        <a href="/download" class="bg-green-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600">Download Now</a>
-                        <a href="{{ url_for('matches_dashboard') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Matches Dashboard</a>
-                    </div>
+<nav class="bg-gray-800 text-white">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="flex items-center">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-8 w-8">
+                    <span class="ml-2 text-xl font-bold">foundermatcha</span>
+                </a>
+            </div>
+            <div class="hidden md:block">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Home</a>
+                    <a href="/about" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">About us</a>
+                    <a href="/personality-test" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Personality test</a>
+                    <a href="/investors" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Investors</a>
+                    <a href="/blog" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Blog</a>
+                    <a href="/contact" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Contact</a>
+                    <a href="{{ url_for('matches_dashboard') }}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Matches</a>
+                    <a href="/download" class="bg-green-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600">Download Now</a>
                 </div>
             </div>
         </div>
-    </nav>
-
+    </div>
+</nav>
     <!-- Content -->
     <main class="container mx-auto px-4 py-8">
         {% block content %}{% endblock %}

@@ -91,6 +91,9 @@ function showCurrentDeveloper() {
         total_score: developer.match_score.total_score,
         components: developer.match_score.components
     });
+    // Reset match button when switching developers
+    resetMatchButton();
+
 }
 
 // Add showCurrentFounder function to match showCurrentDeveloper
@@ -144,56 +147,95 @@ function previousProfile() {
     showCurrentDeveloper();
 }
 
-function replaceImage(container, newSrc) {
-    // Remove existing image
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
+async function loadMatchesDashboard() {
+    try {
+        const response = await fetch('/api/matches');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Update stats
+        const statsElements = {
+            'total-matches': data.stats.total,
+            'successful-matches': data.stats.successful,
+            'pending-matches': data.stats.pending,
+            'failed-matches': data.stats.failed
+        };
+
+        Object.entries(statsElements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        });
+
+        // Update table
+        const tableBody = document.getElementById('matches-table-body');
+        if (!tableBody) return;
+
+        tableBody.innerHTML = data.matches.map(match => `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${new Date(match.created_at).toLocaleDateString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${match.profile_snapshots.founder.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${match.profile_snapshots.developer.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold 
+                        ${match.match_scores.total_score >= 75 ? 'bg-green-100 text-green-800' : 
+                          match.match_scores.total_score >= 50 ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-red-100 text-red-800'}">
+                        ${match.match_scores.total_score}%
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold 
+                        ${match.status === 'successful' ? 'bg-green-100 text-green-800' :
+                          match.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'}">
+                        ${match.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    ${match.status === 'pending' ? `
+                        <button onclick="updateMatchStatus('${match.id}', 'successful')" 
+                                class="text-green-600 hover:text-green-900 mr-2">
+                            Accept
+                        </button>
+                        <button onclick="updateMatchStatus('${match.id}', 'failed')"
+                                class="text-red-600 hover:text-red-900">
+                            Reject
+                        </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading matches dashboard:', error);
+        const tableBody = document.getElementById('matches-table-body');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-red-600">
+                        Error loading matches: ${error.message}
+                    </td>
+                </tr>
+            `;
+        }
     }
-
-    // Create new image
-    const img = new Image();
-    img.id = 'developer-image';
-    img.className = 'w-32 h-32 rounded-full object-cover border-4 border-purple-200';
-
-    // Add cache-busting parameter
-    const cacheBuster = `?t=${new Date().getTime()}`;
-    img.src = newSrc + cacheBuster;
-
-    // Set up load handler
-    img.onload = () => {
-        console.log('Successfully loaded new image:', newSrc);
-    };
-
-    // Set up error handler
-    img.onerror = () => {
-        console.error('Failed to load image:', newSrc);
-        img.src = '/static/images/profiles/default-profile.png';
-    };
-
-    // Add to container
-    container.appendChild(img);
 }
 
-function updateImage(imgElement, newSrc) {
-    console.log('Attempting to update image with src:', newSrc);
-
-    // Create a test image to verify the source is valid
-    const testImage = new Image();
-    testImage.onload = function() {
-        console.log('Image source is valid, updating main image');
-        imgElement.src = newSrc;
-        console.log('Image src updated to:', imgElement.src);
-    };
-
-    testImage.onerror = function() {
-        console.error('Failed to load image:', newSrc);
-        imgElement.src = '/static/images/profiles/default-profile.png';
-    };
-
-    // Add timestamp to bust cache
-    const cacheBuster = '?t=' + new Date().getTime();
-    testImage.src = newSrc + cacheBuster;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+    if (path === '/matches_dashboard') {
+        loadMatchesDashboard();
+    } else {
+        initializeSortedProfiles();
+    }
+});
 
 function updateDeveloperProfile(developer) {
     console.log('Updating developer profile with data:', developer);
@@ -321,15 +363,6 @@ function updateMatchStats(data) {
     updateVisualIndicators(data);
 }
 
-function updateNotificationBadge() {
-    // This could update a notification counter in your UI
-    const notificationBadge = document.querySelector('.notification-badge');
-    if (notificationBadge) {
-        const currentCount = parseInt(notificationBadge.textContent || '0');
-        notificationBadge.textContent = currentCount + 1;
-        notificationBadge.classList.remove('hidden');
-    }
-}
 
 async function updateMatchStatus(matchId, newStatus) {
     try {
@@ -363,61 +396,63 @@ async function updateMatchStatus(matchId, newStatus) {
 }
 
 async function handleMatchClick() {
+    const matchButton = document.querySelector('.match-button');
+    if (!matchButton) {
+        console.log('Match button not found on this page');
+        return;
+    }
+
     const founderId = currentFounderId;
     const currentDeveloper = allDevelopers[currentDeveloperIndex];
-    const developerId = currentDeveloper.id;
 
-    if (!founderId || !developerId) {
+    if (!founderId || !currentDeveloper) {
         showErrorNotification('Please select both a founder and developer first');
         return;
     }
 
     try {
-        // Show loading state
-        const matchButton = document.querySelector('.match-button');
-        const originalContent = matchButton.innerHTML;
-        matchButton.innerHTML = `
-            <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Creating Match...
-        `;
-        matchButton.disabled = true;
+        // Check for existing match
+        const response = await fetch(`/api/matches/check?founder_id=${founderId}&developer_id=${currentDeveloper.id}`);
+        const existingMatch = await response.json();
 
-        // Create the match
-        const matchResult = await createMatch(
-            founderId,
-            developerId,
-            currentDeveloper.match_score
-        );
-
-        if (matchResult.success) {
-            // Update UI to show success
-            matchButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                Matched!
-            `;
-            matchButton.classList.add('bg-green-500', 'hover:bg-green-600');
-            matchButton.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-        } else {
-            // Reset button on failure
-            matchButton.innerHTML = originalContent;
-            matchButton.disabled = false;
+        if (existingMatch.exists) {
+            showErrorNotification('This founder and developer are already matched');
+            return;
         }
-    } catch (error) {
-        console.error('Error in match handling:', error);
-        showErrorNotification('An error occurred while creating the match');
 
-        // Reset button
-        const matchButton = document.querySelector('.match-button');
-        matchButton.innerHTML = originalContent;
-        matchButton.disabled = false;
+        matchButton.disabled = true;
+        matchButton.innerHTML = `<span class="animate-spin">↻</span> Creating Match...`;
+
+        const matchResponse = await fetch('/api/matches/store', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                founder_id: founderId,
+                developer_id: currentDeveloper.id,
+                match_scores: currentDeveloper.match_score
+            })
+        });
+
+        if (!matchResponse.ok) {
+            throw new Error(`HTTP error! status: ${matchResponse.status}`);
+        }
+
+        const result = await matchResponse.json();
+
+        if (result.success) {
+            matchButton.innerHTML = `✓ Matched!`;
+            matchButton.classList.add('bg-green-500');
+            showMatchNotification('Match created successfully!', 'success');
+        }
+
+    } catch (error) {
+        console.error('Error creating match:', error);
+        showErrorNotification('Failed to create match');
+        resetMatchButton();
     }
 }
-
 
 function updateVisualIndicators(data) {
     // Add color coding based on score ranges
@@ -496,6 +531,16 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+function resetMatchButton() {
+    const matchButton = document.querySelector('.match-button');
+    if (matchButton) {
+        matchButton.innerHTML = 'Create Match';
+        matchButton.classList.remove('bg-green-500');
+        matchButton.classList.add('bg-blue-500');
+        matchButton.disabled = false;
+    }
 }
 
 // Initialize search functionality
@@ -820,185 +865,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-/// MATCHES DATABASE SECTION ///
-
-async function createMatch(founderId, developerId, matchScores) {
-    try {
-        const response = await fetch('/api/matches/store', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                founder_id: founderId,
-                developer_id: developerId,
-                match_scores: matchScores,
-                initiated_by: founderId // Assuming match is initiated by founder
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-            showMatchNotification('Match created successfully!', 'success');
-            return {
-                success: true,
-                match_id: result.match_id
-            };
-        } else {
-            throw new Error(result.error || 'Failed to create match');
-        }
-    } catch (error) {
-        console.error('Error creating match:', error);
-        showErrorNotification('Failed to create match: ' + error.message);
-        return {
-            success: false,
-            error: error.message
-        };
-    }
-}
-
-async function updateMatchStatus(matchId, newStatus) {
-    try {
-        const response = await fetch(`/api/matches/${matchId}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                status: newStatus
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-            showMatchNotification(`Match status updated to ${newStatus}`, 'success');
-            return true;
-        } else {
-            throw new Error(result.error || 'Failed to update match status');
-        }
-    } catch (error) {
-        console.error('Error updating match status:', error);
-        showErrorNotification('Failed to update match status: ' + error.message);
-        return false;
-    }
-}
-
-async function matchProfiles() {
-    if (allDevelopers.length === 0 || currentDeveloperIndex >= allDevelopers.length) {
-        showErrorNotification('No developer profile available');
-        return;
-    }
-
-    const developer = allDevelopers[currentDeveloperIndex];
-
-    try {
-        // Calculate match scores using existing functionality
-        const matchScores = {
-            total_score: developer.match_score.total_score,
-            components: {
-                skill_score: developer.match_score.components.skill_score,
-                personality_score: developer.match_score.components.personality_score,
-                background_score: developer.match_score.components.background_score,
-                cultural_score: developer.match_score.components.cultural_score
-            }
-        };
-
-        // Update UI with match scores
-        updateMatchStats(matchScores);
-
-        // If auto-save matches is enabled (you can add this as a user preference)
-        const shouldSaveMatch = false; // Set this based on user preferences or UI toggle
-
-        if (shouldSaveMatch) {
-            // Create the match in Firebase
-            const matchResult = await createMatch(
-                currentFounderId,
-                developer.id,
-                matchScores
-            );
-
-            if (matchResult.success) {
-                showMatchNotification('Match calculated and saved!', 'success');
-            } else {
-                showMatchNotification('Match calculated but not saved', 'warning');
-            }
-        } else {
-            showMatchNotification('Match calculated!', 'success');
-        }
-
-        // Update the match button state
-        updateMatchButtonState(matchScores.total_score);
-
-    } catch (error) {
-        console.error('Error in match calculation:', error);
-        showErrorNotification('Error calculating match scores');
-    }
-}
-
-function updateMatchButtonState(score) {
-    const matchButton = document.querySelector('.match-button');
-    if (!matchButton) return;
-
-    // Update button appearance based on match score
-    if (score >= 75) {
-        matchButton.classList.remove('bg-blue-500', 'bg-yellow-500', 'bg-red-500');
-        matchButton.classList.add('bg-green-500', 'hover:bg-green-600');
-        matchButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-            <span class="ml-2">Strong Match!</span>
-        `;
-    } else if (score >= 50) {
-        matchButton.classList.remove('bg-blue-500', 'bg-green-500', 'bg-red-500');
-        matchButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-        matchButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-            <span class="ml-2">Potential Match</span>
-        `;
-    } else {
-        matchButton.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-blue-500');
-        matchButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
-        matchButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-            <span class="ml-2">Low Match</span>
-        `;
-    }
-
-    // Enable the button to allow creating the match if desired
-    matchButton.disabled = false;
-}
-
-async function getUserMatchHistory(userId, role = 'any') {
-    try {
-        const response = await fetch(`/api/matches/history/${userId}?role=${role}`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        return result.matches;
-    } catch (error) {
-        console.error('Error fetching match history:', error);
-        throw error;
-    }
-}
-
 function showMatchNotification(message, type = 'success') {
     const notification = document.createElement('div');
     const bgColor = {
@@ -1020,3 +886,108 @@ function showMatchNotification(message, type = 'success') {
         }, 300);
     }, 3000);
 }
+
+// DATABASE SECTION
+
+// Add expansion functionality
+function toggleMatchDetails(matchId) {
+    console.log('Toggle called for match:', matchId);
+    const detailsRow = document.getElementById(`details-${matchId}`);
+    const expandBtn = document.getElementById(`expand-btn-${matchId}`);
+
+    console.log('Found elements:', {
+        detailsRow: detailsRow,
+        expandBtn: expandBtn
+    });
+
+    if (!detailsRow || !expandBtn) {
+        console.error('Missing elements for match:', matchId);
+        return;
+    }
+
+    detailsRow.classList.toggle('hidden');
+    expandBtn.style.transform = detailsRow.classList.contains('hidden') ? '' : 'rotate(90deg)';
+}
+
+// Update loadMatchesDashboard table generation
+function generateMatchRow(match, index) {
+    return `
+        <tr id="row-${index}" class="hover:bg-gray-50 cursor-pointer" onclick="toggleMatchDetails(${index})">
+            <td class="px-4 py-4">
+                <button class="transform transition-transform duration-200" id="expand-btn-${index}">▶</button>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${new Date(match.created_at).toLocaleDateString()}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${match.profile_snapshots.founder.name}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                ${match.profile_snapshots.developer.name}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 rounded-full text-xs font-semibold ${getScoreColor(match.match_scores.total_score)}">
+                    ${match.match_scores.total_score}%
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(match.status)}">
+                    ${match.status}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                ${getActionButtons(match)}
+            </td>
+        </tr>
+        <tr id="details-${index}" class="hidden">
+            <td colspan="7" class="px-6 py-4 bg-gray-50">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Match Details</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Skills Score</p>
+                                <p class="mt-1">${match.match_scores.components.skill_score}%</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Personality Score</p>
+                                <p class="mt-1">${match.match_scores.components.personality_score}%</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Background Score</p>
+                                <p class="mt-1">${match.match_scores.components.background_score}%</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Cultural Score</p>
+                                <p class="mt-1">${match.match_scores.components.cultural_score}%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">ML Features</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Location Match</p>
+                                <p class="mt-1">${match.ml_features.location_match ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Industry Overlap</p>
+                                <p class="mt-1">${(match.ml_features.industry_overlap * 100).toFixed(1)}%</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Experience Match</p>
+                                <p class="mt-1">${(match.ml_features.experience_level_match * 100).toFixed(1)}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+
+
+// Update loadMatchesDashboard table part
+const tableBody = document.getElementById('matches-table-body');
+tableBody.innerHTML = data.matches.map((match, index) => generateMatchRow(match, index)).join('');
