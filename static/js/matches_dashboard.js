@@ -128,16 +128,17 @@ function updateDashboardTable(matches) {
                     </button>
                     <button onclick="updateMatchStatus('${match.id}', 'failed')"
                             class="text-red-600 hover:text-red-900 ml-2">
-                        Unsuccessful
+                        Failed
                     </button>
-                ` : ''}
+                ` : '<div class="w-24"></div>'}
                 <button onclick="deleteMatch('${match.id}', '${match.profile_snapshots.founder.name}', '${match.profile_snapshots.developer.name}')"
-                        class="ml-2 text-gray-500 hover:text-red-600 transition-colors" title="Delete Match">
+                        class="float-right ml-2 text-gray-500 hover:text-red-600 transition-colors" title="Delete Match">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </button>
+                </div>
             </td>
         </tr>
         ${generateDetailsRow(match, index)}
@@ -416,6 +417,154 @@ async function deleteMatch(matchId, founderName, developerName) {
         showErrorNotification('Failed to delete match: ' + error.message);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get filter elements
+    const searchInput = document.getElementById('match-search');
+    const statusFilter = document.getElementById('status-filter');
+    const dateFilter = document.getElementById('date-filter');
+    const scoreFilter = document.getElementById('score-filter');
+
+    // Add event listeners
+    searchInput.addEventListener('input', debounce(filterMatches, 300));
+    statusFilter.addEventListener('change', filterMatches);
+    dateFilter.addEventListener('change', filterMatches);
+    scoreFilter.addEventListener('change', filterMatches);
+
+    function filterMatches() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+        const dateRange = dateFilter.value;
+        const scoreRange = scoreFilter.value;
+
+        // Get all main rows (excluding detail rows)
+        const mainRows = document.querySelectorAll('#matches-table-body tr[id^="row-"]');
+
+        mainRows.forEach(row => {
+            let showRow = true;
+            const rowIndex = row.id.split('-')[1];
+            const detailsRow = document.getElementById(`details-${rowIndex}`);
+
+            // Search filter
+            const founderName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const developerName = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+            if (searchTerm && !founderName.includes(searchTerm) && !developerName.includes(searchTerm)) {
+                showRow = false;
+            }
+
+            // Status filter
+            if (status !== 'all') {
+                const statusSpan = row.querySelector('td:nth-child(6) span');
+                const matchStatus = statusSpan.textContent.trim().toLowerCase();
+                if (matchStatus !== status) {
+                    showRow = false;
+                }
+            }
+
+            // Date filter
+            if (dateRange !== 'all') {
+                const dateCell = row.querySelector('td:nth-child(2)').textContent;
+                const matchDate = new Date(dateCell);
+                const today = new Date();
+
+                switch(dateRange) {
+                    case 'today':
+                        if (matchDate.toDateString() !== today.toDateString()) showRow = false;
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(today.setDate(today.getDate() - 7));
+                        if (matchDate < weekAgo) showRow = false;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(today.setMonth(today.getMonth() - 1));
+                        if (matchDate < monthAgo) showRow = false;
+                        break;
+                    case 'quarter':
+                        const quarterAgo = new Date(today.setMonth(today.getMonth() - 3));
+                        if (matchDate < quarterAgo) showRow = false;
+                        break;
+                }
+            }
+
+            // Score filter
+            if (scoreRange !== 'all') {
+                const scoreText = row.querySelector('td:nth-child(5) span').textContent;
+                const score = parseFloat(scoreText);
+
+                switch(scoreRange) {
+                    case 'high':
+                        if (score < 80) showRow = false;
+                        break;
+                    case 'medium':
+                        if (score < 50 || score >= 80) showRow = false;
+                        break;
+                    case 'low':
+                        if (score >= 50) showRow = false;
+                        break;
+                }
+            }
+
+            // Show/hide main row
+            if (showRow) {
+                row.classList.remove('hidden');
+                // If details row exists and was previously expanded, show it
+                if (detailsRow && !detailsRow.classList.contains('hidden')) {
+                    detailsRow.classList.remove('hidden');
+                }
+            } else {
+                row.classList.add('hidden');
+                // Always hide details row when main row is hidden
+                if (detailsRow) {
+                    detailsRow.classList.add('hidden');
+                }
+            }
+
+            // Reset expand button state if row is hidden
+            if (!showRow) {
+                const expandBtn = document.getElementById(`expand-btn-${rowIndex}`);
+                if (expandBtn) {
+                    expandBtn.style.transform = '';
+                }
+            }
+        });
+
+        updateMatchCount();
+    }
+
+    // Modify your existing toggleMatchDetails function
+    window.toggleMatchDetails = function(index) {
+        const detailsRow = document.getElementById(`details-${index}`);
+        const expandBtn = document.getElementById(`expand-btn-${index}`);
+        const mainRow = document.getElementById(`row-${index}`);
+
+        // Only toggle if main row is visible
+        if (!mainRow.classList.contains('hidden')) {
+            detailsRow.classList.toggle('hidden');
+            expandBtn.style.transform = detailsRow.classList.contains('hidden') ? '' : 'rotate(90deg)';
+        }
+    };
+
+    function updateMatchCount() {
+        const visibleRows = document.querySelectorAll('#matches-table-body tr[id^="row-"]:not(.hidden)').length;
+        const countElement = document.getElementById('visible-matches-count');
+        if (countElement) {
+            countElement.textContent = `Showing ${visibleRows} matches`;
+        }
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+});
+
 
 // Add CSS for notifications
 const style = document.createElement('style');

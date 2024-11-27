@@ -269,7 +269,7 @@ function updateDeveloperProfile(developer) {
 
     // Update about section
     const aboutElement = document.querySelector('.developer-about');
-    if (aboutElement) aboutElement.textContent = developer.about || '';
+    if (aboutElement) aboutElement.textContent = developer.about || 'Empty';
 
     // Update industries
     const industriesContainer = document.querySelector('.developer-industries');
@@ -550,6 +550,10 @@ function initializeSearch() {
     const founderResults = document.getElementById('founder-search-results');
     const developerResults = document.getElementById('developer-search-results');
 
+    if (!founderSearch || !developerSearch) {
+        return; // Exit if search elements don't exist
+    }
+
     // Debounced search functions
     const searchFounders = debounce(async (query) => {
         if (query.length < 2) {
@@ -621,7 +625,6 @@ function initializeSearch() {
         }
     }, 300);
 
-    // Add event listeners
     founderSearch.addEventListener('input', (e) => searchFounders(e.target.value));
     developerSearch.addEventListener('input', (e) => searchDevelopers(e.target.value));
 
@@ -683,7 +686,6 @@ function updateFounderProfile(founder) {
         ).join('');
     }
 
-    // Update work details using the founder-specific container class
     updateWorkDetails(founder, 'founder-section');
 
     // Update personality results if they exist
@@ -795,7 +797,6 @@ async function initializeFounder() {
     }
 }
 
-// Add to your DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
     initializeSortedProfiles();
     initializeSearch();

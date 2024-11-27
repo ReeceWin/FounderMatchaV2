@@ -7,9 +7,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5152ff82-0aca-4e63-872c-a86dd53b6665" name="Changes" comment="MVP Commit">
+    <list default="true" id="5152ff82-0aca-4e63-872c-a86dd53b6665" name="Changes" comment="FINAL COMMITTTTT">
+      <change afterPath="$PROJECT_DIR$/static/images/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/insights.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/insights_charts.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/insights.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/calculate_matches.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/calculate_matches.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/matches_dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/matches_dashboard.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/matches_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/matches_dashboard.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +42,15 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {}
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ReeceWin/FounderMatchaV2.git",
+    "accountId": "635b4e05-5267-4065-88e1-186268458cd3"
+  }
+}]]></component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -73,18 +91,6 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="QodanaHighlightedReportService">
-    <option name="localRunNotPublishedPersistedInfo">
-      <LocalReportPersistedInfo>
-        <option name="path" value="C:\Users\Reece\AppData\Local\Temp\qodana_output\qodana.sarif.json" />
-        <option name="reportGuid" value="899e9f25-cd02-4630-bf47-4f78d8861eb0" />
-        <option name="reportName" value="FounderMatchaV2/qodana/2024-11-24" />
-      </LocalReportPersistedInfo>
-    </option>
-  </component>
-  <component name="QodanaIsSelectedPersistenceService">
-    <option name="selectedOrLoading" value="true" />
-  </component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\Reece\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="899e9f25-cd02-4630-bf47-4f78d8861eb0" reportId="FounderMatchaV2/qodana/2024-11-24" />
@@ -95,11 +101,11 @@
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\static\images" />
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\templates" />
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2" />
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\models" />
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\static" />
-      <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\static\images" />
     </key>
   </component>
   <component name="RunManager" selected="Flask server.Flask (app.py)">
@@ -284,7 +290,15 @@
       <option name="project" value="LOCAL" />
       <updated>1732582498537</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="MVP Commit">
+      <option name="closed" value="true" />
+      <created>1732647102466</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1732647102466</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -294,7 +308,8 @@
     <MESSAGE value="First committ" />
     <MESSAGE value="Commit before big profile card change" />
     <MESSAGE value="MVP Commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="MVP Commit" />
+    <MESSAGE value="FINAL COMMITTTTT" />
+    <option name="LAST_COMMIT_MESSAGE" value="FINAL COMMITTTTT" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FounderMatchaV2$cards.coverage" NAME="cards Coverage Results" MODIFIED="1732224960966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Insights</h1>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Total Matches</h3>
+            <p class="text-2xl font-bold text-gray-900" id="total-matches">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Success Rate</h3>
+            <p class="text-2xl font-bold text-gray-900" id="success-rate">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Average Match Score</h3>
+            <p class="text-2xl font-bold text-gray-900" id="average-score">-</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-gray-500 text-sm font-medium">Active Matches</h3>
+            <p class="text-2xl font-bold text-gray-900" id="active-matches">-</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Daily Trends -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Daily Trends</h3>
+            <div class="relative h-80">
+                <canvas id="daily-trends-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Score Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Match Score Distribution</h3>
+            <div class="relative h-80">
+                <canvas id="score-distribution-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/insights.js') }}"></script>
+{% endblock %}

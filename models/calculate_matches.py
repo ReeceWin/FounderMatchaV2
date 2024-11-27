@@ -259,7 +259,7 @@ class EnhancedMatcher:
 
         final_score = base_score * red_flags
 
-        return min(0.90, final_score)  # Cap at 90% to make perfect matches rare
+        return final_score  # Cap at 90% to make perfect matches rare
 
     def calculate_background_match(self, founder: Dict, developer: Dict) -> float:
         founder_degrees = set(' '.join(founder.get('degrees', [])).lower().split())

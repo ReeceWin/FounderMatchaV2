@@ -35,7 +35,7 @@ def initialize_firebase():
                 logger.error(f"Failed to initialize Firebase after {max_attempts} attempts: {e}")
                 raise
             logger.warning(f"Firebase initialization attempt {attempt} failed: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff
+            time.sleep(2 ** attempt)
 
 
 def retry_on_firebase_error(f):
@@ -84,7 +84,6 @@ except Exception as e:
 
 def get_local_image_path(profileImageUrl):
     """Convert database profileImageUrl to local static path or return default image"""
-    logger.debug(f"Starting get_local_image_path with input: {profileImageUrl}")
 
     if not profileImageUrl:
         logger.debug("No profile URL provided, returning default")
@@ -93,22 +92,16 @@ def get_local_image_path(profileImageUrl):
     # Get the file system path by joining static folder with 'images' and the profileImageUrl
     fs_path = os.path.join(
         app.static_folder,
-        'images',  # Add 'images' to the path
+        'images',
         profileImageUrl
     )
 
-    # Clean up the path (replace backslashes with forward slashes)
     fs_path = fs_path.replace('\\', '/')
 
-    # For the URL, we want /static/images/profiles/...
     url_path = f'/static/images/{profileImageUrl}'
-    url_path = url_path.replace('//', '/')  # Clean up any double slashes
-
-    logger.debug(f"Checking file system path: {fs_path}")
-    logger.debug(f"URL path that will be returned: {url_path}")
+    url_path = url_path.replace('//', '/')
 
     if os.path.isfile(fs_path):
-        logger.debug(f"File exists at {fs_path}")
         return url_path
     else:
         logger.debug(f"File NOT found at {fs_path}")
@@ -267,6 +260,7 @@ def get_developer_profile(developer_id=None):
         # Add workStyles to the response
         return {
             'id': dev_doc.id,
+            'about': dev_data.get('about', ''),
             'name': dev_data.get('name', 'Unknown Developer'),
             'role': dev_data.get('role', 'Developer'),
             'skills': dev_data.get('skills', []),
@@ -334,6 +328,7 @@ def match():
 
         developer_data = {
             'name': developer.get('name', ''),
+            'about': developer.get('about', ''),
             'role': 'softwareEngineer',
             'skills': developer.get('skills', []),
             'personalityResults': developer.get('personalityResults', {}),
@@ -396,7 +391,7 @@ def get_developers():
                 'name': dev_data.get('name', 'Unknown Developer'),
                 'role': dev_data.get('role', 'Developer'),
                 'skills': dev_data.get('skills', []),
-                'workStyles': dev_data.get('workStyles', []),  # Added this line
+                'workStyles': dev_data.get('workStyles', []),
                 'profileImageUrl': local_image_path
             })
 
@@ -522,7 +517,6 @@ def check_existing_match():
         logger.error(f"Error checking existing match: {e}")
         return jsonify({'error': str(e)}), 500
 
-# Add to app.py
 
 @app.route('/api/matches/<match_id>', methods=['DELETE'])
 @retry_on_firebase_error
@@ -783,6 +777,7 @@ def store_match():
                     'name': developer.get('name'),
                     'skills': developer.get('skills', []),
                     'industries': developer.get('industries', []),
+                    'about': developer.get('about', []),
                     'personality_results': developer.get('personalityResults', {}),
                     'degrees': developer.get('degrees', []),
                     'companies': developer.get('companies', []),
@@ -839,7 +834,6 @@ def update_match_status(match_id):
 def calculate_skill_coverage(founder, developer):
     founder_industries = set(founder.get('industries', []))
     developer_skills = set(developer.get('skills', []))
-    # Add logic to map industry requirements to skills
     return len(developer_skills) / max(len(founder_industries), 1)
 
 
@@ -925,6 +919,120 @@ def get_user_match_count(user_id):
         logger.error(f"Error getting match count: {e}")
         return 0
 
-# Add to bottom of app.py
+"""INSIGHTS SECTION"""
+
+
+@app.route('/insights')
+def insights():
+    return render_template('insights.html')
+
+@app.route('/api/insights/metrics')
+def get_insights_metrics():
+    try:
+        # Get all matches
+        matches_ref = db.collection('matches').stream()
+        matches = [match.to_dict() for match in matches_ref]
+
+        # Calculate metrics
+        total_matches = len(matches)
+        successful_matches = sum(1 for m in matches if m.get('status') == 'successful')
+        avg_score = sum(m.get('match_scores', {}).get('total_score', 0) for m in
+                        matches) / total_matches if total_matches > 0 else 0
+
+        return jsonify({
+            'total_matches': total_matches,
+            'successful_matches': successful_matches,
+            'success_rate': (successful_matches / total_matches * 100) if total_matches > 0 else 0,
+            'average_score': avg_score
+        })
+    except Exception as e:
+        logger.error(f"Error getting insights metrics: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/insights/trends')
+def get_insights_trends():
+    try:
+        matches_ref = db.collection('matches').order_by('created_at').stream()
+        matches = [match.to_dict() for match in matches_ref]
+
+        # Process daily data
+        daily_data = {}
+        for match in matches:
+            date = datetime.fromisoformat(match['created_at']).strftime('%Y-%m-%d')
+
+            if date not in daily_data:
+                daily_data[date] = {
+                    'total': 0,
+                    'successful': 0,
+                    'scores': []
+                }
+
+            daily_data[date]['total'] += 1
+
+            total_score = match.get('match_scores', {}).get('total_score', 0)
+            daily_data[date]['scores'].append(total_score)
+
+            if match.get('status') == 'successful':
+                daily_data[date]['successful'] += 1
+
+        # Format data for frontend
+        trends = []
+        for date, data in daily_data.items():
+            trends.append({
+                'date': date,
+                'total_matches': data['total'],
+                'successful_matches': data['successful'],
+                'average_score': sum(data['scores']) / len(data['scores']) if data['scores'] else 0,
+                'individual_scores': data['scores']  # Include individual scores for distribution
+            })
+
+        return jsonify(trends)
+    except Exception as e:
+        print(f"Error getting insights trends: {e}")
+        return jsonify({'error': str(e)}), 500
+
+'''ALL USERS DATABASE NO MATCHES'''
+
+
+@app.route('/user_database')
+def user_database():
+    return render_template('user_database.html')
+
+
+@app.route('/api/all_users')
+@retry_on_firebase_error
+def get_all_users():
+    try:
+        # Get all users from the database
+        users_ref = db.collection('hackathonusers')
+        all_users = list(users_ref.stream())
+
+        users_list = []
+        for user in all_users:
+            user_data = user.to_dict()
+            profile_image = user_data.get('profileImageUrl')
+            local_image_path = get_local_image_path(profile_image)
+
+            users_list.append({
+                'id': user.id,
+                'name': user_data.get('name', 'Unknown'),
+                'role': user_data.get('role', ''),
+                'skills': user_data.get('skills', []),
+                'industries': user_data.get('industries', []),
+                'city': user_data.get('city', ''),
+                'about': user_data.get('about', ''),
+                'companies': user_data.get('companies', []),
+                'degrees': user_data.get('degrees', []),
+                'workStyles': user_data.get('workStyles', []),
+                'profileImageUrl': local_image_path
+            })
+
+        return jsonify(users_list)
+    except Exception as e:
+        logger.error(f"Error fetching all users: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)
