@@ -179,4 +179,7 @@ Planned enhancements include:
 Graphs are easily adjustable and you can add different graphs and metrics based on requirements.
 <img width="1261" alt="image" src="https://github.com/user-attachments/assets/ab3e1d57-13d2-4236-a986-3f54b6446940">
 
+## User Database
+<img width="1265" alt="image" src="https://github.com/user-attachments/assets/5c980ee3-7673-4b9d-8921-aef236fcc006">
+
 
