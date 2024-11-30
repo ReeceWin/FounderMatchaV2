@@ -15,7 +15,7 @@ A sophisticated platform designed to pair founders with software developers thro
 
 ## Introduction
 
-This system operates similarly to dating apps but is specifically designed for professional relationships. Rather than focusing solely on personal compatibility, it creates effective teams by analyzing multiple dimensions of both professionals' profiles, including:
+This system operates similarly to dating apps but is specifically designed for professional relationships. Rather than focusing solely on personal compatibility, it creates effective teams by analysing multiple dimensions of both professionals' profiles, including:
 - Technical capabilities
 - Industry experience
 - Personality traits
@@ -52,7 +52,7 @@ The skills matching process is industry-specific and evaluates developers based 
 
 ## Personality Evaluation
 
-Analyzes five key traits with specific criteria:
+Analyses five key traits with specific criteria:
 
 | Trait | Criteria |
 |-------|----------|
@@ -84,11 +84,39 @@ Creates a "time capsule" of each match, including:
 
 ## Machine Learning Integration
 
-The system utilizes collected data to:
-- Identify successful trait combinations
-- Understand industry-specific skill importance
-- Recognize patterns in match outcomes
-- Improve prediction accuracy
+The system is designed to collect comprehensive data that will power future machine learning algorithms.
+
+Here is what we are collecting and why:
+
+**Match Outcome Data**
+- Success ratings of partnerships
+- Duration of collaborations
+- Response times and engagement metrics
+- Project completion rates
+Purpose: This data will help identify patterns in successful matches and predict potential match success rates.
+
+ **Personality Analysis Data**
+- Individual trait scores
+- Trait combinations in successful/unsuccessful matches
+- Red flag occurrence and impact
+- Personality complementarity metrics
+Purpose: To understand which personality combinations work best in different contexts and industries.
+
+**Skills and Industry Data**
+- Required vs. utilized skills
+- Industry-specific skill importance
+- Skill combination effectiveness
+- Cross-industry skill transferability
+Purpose: To refine skill matching algorithms and better understand skill requirements across different industries.
+  
+**Interaction Patterns**
+- Communication preferences
+- Work style compatibility
+- Decision-making alignment
+- Conflict resolution approaches
+Purpose: To develop more nuanced matching criteria based on actual collaboration patterns.
+
+This data collection approach ensures that when ML integration begins, we'll have rich, relevant data to train accurate and effective matching models.
 
 ## Privacy & Security
 
@@ -146,3 +174,17 @@ Planned enhancements include:
 
 ---
 *Note: This system is continuously learning and improving its matching capabilities through data analysis and machine learning integration.*
+
+## Main Page
+<img width="1265" alt="image" src="https://github.com/user-attachments/assets/74a364b4-8111-441f-b75e-75756227a8ea">
+
+## Matches dashboard with Database
+<img width="1265" alt="image" src="https://github.com/user-attachments/assets/2b772f54-f1c6-4288-b450-1db59f8308f8">
+
+<img width="1267" alt="image" src="https://github.com/user-attachments/assets/8e3dfbdb-8170-4fe7-9f9f-7fcd6676bc5d">
+
+## Insights page
+Graphs are easily adjustable and you can add different graphs and metrics based on requirements.
+<img width="1261" alt="image" src="https://github.com/user-attachments/assets/ab3e1d57-13d2-4236-a986-3f54b6446940">
+
+
