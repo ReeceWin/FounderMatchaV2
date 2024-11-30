@@ -62,7 +62,7 @@ Analyses five key traits with specific criteria:
 | Agreeableness | At least one person above average |
 | Openness | Higher combined scores preferred |
 
-## Data Collection
+## Data Collection for Matches Database
 
 Creates a "time capsule" of each match, including:
 
@@ -118,14 +118,6 @@ Purpose: To develop more nuanced matching criteria based on actual collaboration
 
 This data collection approach ensures that when ML integration begins, we'll have rich, relevant data to train accurate and effective matching models.
 
-## Privacy & Security
-
-Security measures include:
-- Professional information only storage
-- Point-in-time snapshot preservation
-- Private personality results
-- Score-focused reporting
-- Controlled history access
 
 ## Technical Implementation
 
