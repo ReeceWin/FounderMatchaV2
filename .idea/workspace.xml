@@ -8,17 +8,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5152ff82-0aca-4e63-872c-a86dd53b6665" name="Changes" comment="FINAL COMMITTTTT">
-      <change afterPath="$PROJECT_DIR$/static/images/logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/insights.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/insights_charts.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/insights.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/FounderMatchaV2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/FounderMatchaV2.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/calculate_matches.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/calculate_matches.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/matches_dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/matches_dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/matches_dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/matches_dashboard.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,15 +33,15 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {}
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/ReeceWin/FounderMatchaV2.git",
-    "accountId": "635b4e05-5267-4065-88e1-186268458cd3"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ReeceWin/FounderMatchaV2.git&quot;,
+    &quot;accountId&quot;: &quot;635b4e05-5267-4065-88e1-186268458cd3&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -63,34 +54,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Flask server.Flask (app.py).executor": "Run",
-    "Node.js.main.js.executor": "Run",
-    "Python.analyzepersonalitytraits.executor": "Run",
-    "Python.calculate_matches (1).executor": "Run",
-    "Python.calculate_matches.executor": "Run",
-    "Python.cards.executor": "Run",
-    "Python.downloadfaces.executor": "Run",
-    "Python.pull_industries.executor": "Run",
-    "Python.rename (1).executor": "Run",
-    "Python.rename.executor": "Run",
-    "Python.unsplashupload.executor": "Run",
-    "Python.updateprofileimage.executor": "Run",
-    "Python.upload_data.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Reece/PycharmProjects/FounderMatchaV2",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Flask server.Flask (app.py).executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.main.js.executor&quot;: &quot;Run&quot;,
+    &quot;Python.analyzepersonalitytraits.executor&quot;: &quot;Run&quot;,
+    &quot;Python.calculate_matches (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.calculate_matches.executor&quot;: &quot;Run&quot;,
+    &quot;Python.cards.executor&quot;: &quot;Run&quot;,
+    &quot;Python.downloadfaces.executor&quot;: &quot;Run&quot;,
+    &quot;Python.pull_industries.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rename (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.rename.executor&quot;: &quot;Run&quot;,
+    &quot;Python.unsplashupload.executor&quot;: &quot;Run&quot;,
+    &quot;Python.updateprofileimage.executor&quot;: &quot;Run&quot;,
+    &quot;Python.upload_data.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Reece/PycharmProjects/FounderMatchaV2&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\Reece\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="899e9f25-cd02-4630-bf47-4f78d8861eb0" reportId="FounderMatchaV2/qodana/2024-11-24" />
@@ -108,7 +99,7 @@
       <recent name="C:\Users\Reece\PycharmProjects\FounderMatchaV2\static" />
     </key>
   </component>
-  <component name="RunManager" selected="Flask server.Flask (app.py)">
+  <component name="RunManager" selected="Flask server.FounderMatchaV2">
     <configuration name="main.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/static/js/main.js" working-dir="$PROJECT_DIR$/static/js">
       <method v="2" />
     </configuration>
@@ -228,7 +219,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -265,6 +256,8 @@
       <workItem from="1732205960042" duration="17775000" />
       <workItem from="1732303859890" duration="10221000" />
       <workItem from="1732323173922" duration="51019000" />
+      <workItem from="1732713927883" duration="5452000" />
+      <workItem from="1732802001335" duration="1886000" />
     </task>
     <task id="LOCAL-00001" summary="First committ">
       <option name="closed" value="true" />
@@ -298,11 +291,30 @@
       <option name="project" value="LOCAL" />
       <updated>1732647102466</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="FINAL COMMITTTTT">
+      <option name="closed" value="true" />
+      <created>1732669782635</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1732669782636</updated>
+    </task>
+    <task id="LOCAL-00006" summary="FINAL COMMITTTTT">
+      <option name="closed" value="true" />
+      <created>1732669797091</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1732669797091</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="python:kafka-python" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First committ" />
@@ -310,6 +322,17 @@
     <MESSAGE value="MVP Commit" />
     <MESSAGE value="FINAL COMMITTTTT" />
     <option name="LAST_COMMIT_MESSAGE" value="FINAL COMMITTTTT" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/static/js/user_database.js</url>
+          <line>27</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/FounderMatchaV2$cards.coverage" NAME="cards Coverage Results" MODIFIED="1732224960966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
