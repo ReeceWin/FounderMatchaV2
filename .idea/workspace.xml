@@ -10,6 +10,8 @@
     <list default="true" id="5152ff82-0aca-4e63-872c-a86dd53b6665" name="Changes" comment="FINAL COMMITTTTT">
       <change beforePath="$PROJECT_DIR$/.idea/FounderMatchaV2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/FounderMatchaV2.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/matches_dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/matches_dashboard.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +30,17 @@
         <option value="HTML File" />
         <option value="JavaScript File" />
       </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
     </option>
   </component>
   <component name="Git.Settings">
@@ -54,34 +67,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Flask server.Flask (app.py).executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.main.js.executor&quot;: &quot;Run&quot;,
-    &quot;Python.analyzepersonalitytraits.executor&quot;: &quot;Run&quot;,
-    &quot;Python.calculate_matches (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.calculate_matches.executor&quot;: &quot;Run&quot;,
-    &quot;Python.cards.executor&quot;: &quot;Run&quot;,
-    &quot;Python.downloadfaces.executor&quot;: &quot;Run&quot;,
-    &quot;Python.pull_industries.executor&quot;: &quot;Run&quot;,
-    &quot;Python.rename (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.rename.executor&quot;: &quot;Run&quot;,
-    &quot;Python.unsplashupload.executor&quot;: &quot;Run&quot;,
-    &quot;Python.updateprofileimage.executor&quot;: &quot;Run&quot;,
-    &quot;Python.upload_data.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Reece/PycharmProjects/FounderMatchaV2&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Flask server.Flask (app.py).executor": "Run",
+    "Node.js.main.js.executor": "Run",
+    "Python.analyzepersonalitytraits.executor": "Run",
+    "Python.calculate_matches (1).executor": "Run",
+    "Python.calculate_matches.executor": "Run",
+    "Python.cards.executor": "Run",
+    "Python.downloadfaces.executor": "Run",
+    "Python.pull_industries.executor": "Run",
+    "Python.rename (1).executor": "Run",
+    "Python.rename.executor": "Run",
+    "Python.unsplashupload.executor": "Run",
+    "Python.updateprofileimage.executor": "Run",
+    "Python.upload_data.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/Reece/PycharmProjects/FounderMatchaV2",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyIntegratedToolsModulesConfigurable",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\Reece\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="899e9f25-cd02-4630-bf47-4f78d8861eb0" reportId="FounderMatchaV2/qodana/2024-11-24" />
@@ -258,6 +272,7 @@
       <workItem from="1732323173922" duration="51019000" />
       <workItem from="1732713927883" duration="5452000" />
       <workItem from="1732802001335" duration="1886000" />
+      <workItem from="1732973020457" duration="673000" />
     </task>
     <task id="LOCAL-00001" summary="First committ">
       <option name="closed" value="true" />
@@ -307,7 +322,15 @@
       <option name="project" value="LOCAL" />
       <updated>1732669797091</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="FINAL COMMITTTTT">
+      <option name="closed" value="true" />
+      <created>1732973275695</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1732973275695</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -315,6 +338,17 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="dependencySupport" implementationName="python:kafka-python" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First committ" />

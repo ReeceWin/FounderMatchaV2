@@ -130,7 +130,8 @@ function updateDashboardTable(matches) {
                             class="text-red-600 hover:text-red-900 ml-2">
                         Failed
                     </button>
-                ` : '<div class="w-24"></div>'}
+                ` :
+        '<div class="w-24"></div>'}
                 <button onclick="deleteMatch('${match.id}', '${match.profile_snapshots.founder.name}', '${match.profile_snapshots.developer.name}')"
                         class="float-right ml-2 text-gray-500 hover:text-red-600 transition-colors" title="Delete Match">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
